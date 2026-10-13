@@ -1443,6 +1443,7 @@ pub fn main() -> i32 {
 
     // before GTK: a failure while starting up should still reach the file
     crate::log::init();
+    crate::config::migrate_from_fence();
     glib::set_prgname(Some("hedge"));
     let app = HedgeApp::new();
     let code = app.run();

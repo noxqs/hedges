@@ -561,7 +561,8 @@ impl Default for Claude {
 /// The whole config: an insertion-ordered map of hedge name -> block.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Config {
-    #[serde(default)]
+    // `fences` is the key configs written before the fence → hedge rename use.
+    #[serde(default, alias = "fences")]
     pub hedges: IndexMap<String, Hedge>,
     /// Whether desktop icons are currently stashed away (see `desktop` module).
     #[serde(default)]
@@ -627,6 +628,22 @@ pub fn config_dir() -> PathBuf {
             home.join(".config")
         });
     base.join("hedge")
+}
+
+/// Carry a config over from before the fence → hedge rename: when
+/// `~/.config/hedge` doesn't exist yet but `~/.config/fence` does, move the
+/// whole directory (config, backups, icons, snapshot) across. Nothing is
+/// touched once `hedge` exists, so this only ever runs once.
+pub fn migrate_from_fence() {
+    let dir = config_dir();
+    let old = dir.with_file_name("fence");
+    if dir.exists() || !old.join("config.json").is_file() {
+        return;
+    }
+    match std::fs::rename(&old, &dir) {
+        Ok(()) => crate::log!("moved config {} -> {}", old.display(), dir.display()),
+        Err(e) => crate::log!(WARN, "could not move config {}: {e}", old.display()),
+    }
 }
 
 pub fn config_path() -> PathBuf {
@@ -850,6 +867,16 @@ mod tests {
         let back: Config = serde_json::from_str(&json).unwrap();
         assert_eq!(back.hedges.len(), 1);
         assert_eq!(back.hedges["Hedge"].apps.len(), 4);
+    }
+
+    /// A config saved before the fence → hedge rename keeps its blocks, and
+    /// is written back under the new key.
+    #[test]
+    fn a_pre_rename_config_still_loads() {
+        let cfg: Config = serde_json::from_str(r#"{"fences": {"Work": {}}}"#).unwrap();
+        assert_eq!(hedge_names(&cfg), vec!["Work"]);
+        let json = serde_json::to_string(&cfg).unwrap();
+        assert!(json.contains("\"hedges\"") && !json.contains("\"fences\""));
     }
 
     /// The desklet's one chevron became two icons. Whatever the chevron was

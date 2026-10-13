@@ -9,6 +9,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# The publish step creates the GitHub release.
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest

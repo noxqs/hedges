@@ -1,0 +1,23 @@
+<component name="ProjectRunConfigurationManager">
+  <!--
+    Build this checkout and install it into $HOME (binary, autostart, menu
+    launcher, desktop right-click actions). Never forwarded to a running
+    instance: install flags are handled before GTK starts. Reverse it from
+    Settings, General, VERSION, Uninstall.
+  -->
+  <configuration default="false" name="Install (release)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" nameIsGenerated="false">
+    <option name="command" value="run --release -- --install" />
+    <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+    <option name="channel" value="DEFAULT" />
+    <option name="requiredFeatures" value="true" />
+    <option name="allFeatures" value="false" />
+    <option name="emulateTerminal" value="false" />
+    <option name="withSudo" value="false" />
+    <option name="buildTarget" value="REMOTE" />
+    <option name="backtrace" value="SHORT" />
+    <envs />
+    <option name="isRedirectInput" value="false" />
+    <option name="redirectInputPath" value="" />
+    <method v="2" />
+  </configuration>
+</component>

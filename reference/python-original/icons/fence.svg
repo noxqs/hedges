@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- Fence: a mini fence — dark rounded panel, accent header, app tiles -->
+  <rect x="5" y="9" width="54" height="46" rx="13" fill="#12141c" fill-opacity="0.92"/>
+  <rect x="5" y="9" width="54" height="46" rx="13" fill="none"
+        stroke="#7aa2f7" stroke-width="3"/>
+  <!-- header strip (top corners follow the panel radius) -->
+  <rect x="5" y="9" width="54" height="14" rx="13" fill="#7aa2f7"/>
+  <rect x="5" y="17" width="54" height="6" fill="#7aa2f7"/>
+  <!-- app tiles -->
+  <g fill="#e7e9f0">
+    <rect x="13" y="29" width="11" height="11" rx="3.5"/>
+    <rect x="27" y="29" width="11" height="11" rx="3.5"/>
+    <rect x="41" y="29" width="11" height="11" rx="3.5"/>
+    <rect x="13" y="42" width="11" height="11" rx="3.5"/>
+    <rect x="27" y="42" width="11" height="11" rx="3.5"/>
+  </g>
+  <rect x="41" y="42" width="11" height="11" rx="3.5" fill="#7aa2f7"/>
+</svg>

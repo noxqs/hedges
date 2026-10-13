@@ -1,0 +1,68 @@
+/* Fence — base styling (per-fence colours are injected at runtime).
+   Zen, lean, dark. */
+
+.fence-window { background-color: transparent; }
+
+/* the grid's clipping container must not paint a theme background */
+.fence-body layout,
+.fence-body scrolledwindow,
+.fence-body viewport {
+    background-color: transparent;
+}
+
+.fence-title {
+    font-weight: bold;
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+.fence-label {
+    font-size: 10px;
+    color: #c7cad6;
+}
+
+.fence-hint {
+    color: #9aa0b3;
+    font-size: 11px;
+    padding: 10px;
+}
+
+.fence-tile {
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+
+.fence-window.fence-droptarget {
+    outline: 2px solid #7aa2f7;
+    outline-offset: -2px;
+}
+
+/* ---- settings window (light) ---- */
+.fence-settings { background-color: #f4f5f8; color: #2a2e3a; }
+.fence-settings stackswitcher button {
+    background-color: #e7e9ef;
+    background-image: none;
+    color: #5a6072;
+    border: 1px solid #d5d8e2;
+    padding: 4px 18px;
+}
+.fence-settings stackswitcher button:hover { background-color: #dde0e9; }
+.fence-settings stackswitcher button:checked {
+    background-color: #7aa2f7;
+    color: #ffffff;
+}
+.fence-sidebar { background-color: #eaecf2; }
+.fence-sidebar list { background-color: transparent; }
+.fence-sidebar row { padding: 8px 12px; border-radius: 8px; color: #2a2e3a; }
+.fence-sidebar row:hover { background-color: #dde0e9; }
+.fence-sidebar row:selected { background-color: #7aa2f7; color: #ffffff; }
+.fence-section-title {
+    font-weight: bold;
+    color: #5b73c4;
+    letter-spacing: 1px;
+    margin: 12px 4px 4px 4px;
+}
+.fence-detail { padding: 16px; }
+.fence-app-row { padding: 6px; border-radius: 8px; }
+.fence-app-row:hover { background-color: #e7e9ef; }
+.fence-dim { color: #8a8f9e; }

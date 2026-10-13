@@ -1,0 +1,28 @@
+<component name="ProjectRunConfigurationManager">
+  <!--
+    The one to use while developing.
+
+    Hedge is single-instance per D-Bus name, so a plain `cargo run` next to an
+    already-running Hedge forwards its command line to that instance and exits
+    0 without ever showing your build. A separate HEDGE_APP_ID gives this build
+    its own name, and a throwaway XDG_CONFIG_HOME keeps it off your real hedges.
+  -->
+  <configuration default="false" name="Run (release, dev instance)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" nameIsGenerated="false">
+    <option name="command" value="run --release" />
+    <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+    <option name="channel" value="DEFAULT" />
+    <option name="requiredFeatures" value="true" />
+    <option name="allFeatures" value="false" />
+    <option name="emulateTerminal" value="false" />
+    <option name="withSudo" value="false" />
+    <option name="buildTarget" value="REMOTE" />
+    <option name="backtrace" value="SHORT" />
+    <envs>
+      <env name="HEDGE_APP_ID" value="org.hedge.HedgeDev" />
+      <env name="XDG_CONFIG_HOME" value="/tmp/hedge-dev" />
+    </envs>
+    <option name="isRedirectInput" value="false" />
+    <option name="redirectInputPath" value="" />
+    <method v="2" />
+  </configuration>
+</component>

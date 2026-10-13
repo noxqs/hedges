@@ -1,0 +1,85 @@
+name: build
+
+# Same pipeline for both jobs: scripts/build-release.sh. Pushing a v* tag also
+# publishes the tarball, the one-file .run installer and SHA256SUMS.
+on:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GTK3 build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libgtk-3-dev libglib2.0-dev libcairo2-dev libgdk-pixbuf-2.0-dev \
+            libayatana-appindicator3-dev libxcb1-dev pkg-config
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo fmt --check
+        continue-on-error: true
+      - run: cargo clippy --all-targets -- -D warnings
+        continue-on-error: true
+
+      - name: Build the installer
+        # Pin the stamp baked into the binary to the commit's own timestamp, so
+        # two builds of the same commit compare equal in the upgrade check.
+        run: |
+          SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
+          export SOURCE_DATE_EPOCH
+          ./scripts/build-release.sh
+
+      - name: Build the .deb
+        run: |
+          SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)
+          export SOURCE_DATE_EPOCH
+          ./scripts/build-deb.sh
+
+      - name: Smoke-test install and uninstall in a scratch HOME
+        run: |
+          export HOME="$RUNNER_TEMP/fakehome"
+          mkdir -p "$HOME"
+          unset XDG_DATA_HOME XDG_CONFIG_HOME
+          RUN=$(ls dist/*.run)
+          "$RUN"
+          "$RUN" --status
+          test -f "$HOME/.local/share/nemo/actions/hedge.nemo_action"
+          "$RUN" --uninstall
+          test ! -e "$HOME/.local/share/nemo/actions/hedge.nemo_action"
+
+      - name: Smoke-test the .deb
+        run: |
+          sudo apt-get install -y ./dist/hedge_*.deb
+          test -x /usr/bin/hedge
+          /usr/bin/hedge --version
+          test -f /etc/xdg/autostart/hedge.desktop
+          sudo apt-get remove -y hedge
+          test ! -e /usr/bin/hedge
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hedge-installer
+          path: |
+            dist/*.tar.gz
+            dist/*.run
+            dist/*.deb
+            dist/SHA256SUMS
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/*.run
+            dist/*.deb
+            dist/SHA256SUMS

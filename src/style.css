@@ -1,0 +1,146 @@
+/* Hedge — base styling (per-hedge colours are injected at runtime).
+   Zen, lean, dark. */
+
+.hedge-window { background-color: transparent; }
+
+/* Title bar height — fixed for every hedge, never per-hedge customised.
+   min-height is the content box, so this is 28 + 1 + 1 = 30px total, which
+   matches the height an auto-fit hedge renders naturally. Without it a hedge
+   that has been manually resized (an explicit width/height in the config)
+   renders its header at ~16px, because the panel box squeezes the
+   non-expanding header child. The per-hedge CSS supplies only the accent
+   background and corner radius; the padding lives here so the height has a
+   single source of truth. */
+.hedge-header {
+    min-height: 28px;
+    padding: 1px 12px;
+}
+
+/* neither clipping container may paint a theme background: the roll clip
+   (a scrolledwindow + its viewport) sits directly inside the panel, so it
+   would otherwise paint an opaque square over the panel's rounded corners */
+/* GTK draws a dotted "there is more content this way" marker on a
+   scrolledwindow's clipped edges. The roll clip is a scrolledwindow whose
+   height we constrain, so it drew a dotted line along the bottom of every
+   hedge. It is decoration for scrolling we deliberately don't offer. */
+.hedge-panel scrolledwindow undershoot.top,
+.hedge-panel scrolledwindow undershoot.bottom,
+.hedge-panel scrolledwindow undershoot.left,
+.hedge-panel scrolledwindow undershoot.right,
+.hedge-panel scrolledwindow overshoot.top,
+.hedge-panel scrolledwindow overshoot.bottom,
+.hedge-panel scrolledwindow overshoot.left,
+.hedge-panel scrolledwindow overshoot.right {
+    background-image: none;
+    background-color: transparent;
+    border: none;
+}
+
+.hedge-panel scrolledwindow,
+.hedge-panel viewport,
+.hedge-body layout,
+.hedge-body scrolledwindow,
+.hedge-body viewport {
+    background-color: transparent;
+}
+
+/* The inline rename entry stands in for the title label inside the header, so
+   it shares the title's font — one source of truth, they can't drift apart.
+   It deliberately does NOT reuse `.hedge-title` itself: the per-hedge CSS
+   paints `.hedge-title` with the accent's contrast colour, which is chosen to
+   sit on the accent bar, not on the theme's entry background (a dark accent
+   would give near-white text on a white entry). */
+.hedge-title,
+.hedge-rename {
+    font-weight: bold;
+    font-size: 11px;
+    letter-spacing: 2px;
+}
+
+/* Strip the theme's entry chrome so swapping the label for the entry doesn't
+   change the header's height — the header is only `1px 12px` of padding. */
+.hedge-rename {
+    min-height: 0;
+    padding: 0 4px;
+    margin: 0;
+}
+
+.hedge-label {
+    font-size: 10px;
+    color: #c7cad6;
+}
+
+/* "3 × 2" size readout shown while resizing; colours come from the per-hedge
+   CSS so it sits on the accent like the title bar does */
+.hedge-badge {
+    font-weight: bold;
+    font-size: 15px;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 10px;
+}
+
+.hedge-hint {
+    color: #9aa0b3;
+    font-size: 11px;
+    padding: 10px;
+}
+
+.hedge-tile {
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+
+.hedge-window.hedge-droptarget {
+    outline: 2px solid #7aa2f7;
+    outline-offset: -2px;
+}
+
+/* ---- settings window (light) ---- */
+.hedge-settings { background-color: #f4f5f8; color: #2a2e3a; }
+.hedge-settings stackswitcher button {
+    background-color: #e7e9ef;
+    background-image: none;
+    color: #5a6072;
+    border: 1px solid #d5d8e2;
+    padding: 4px 18px;
+}
+.hedge-settings stackswitcher button:hover { background-color: #dde0e9; }
+.hedge-settings stackswitcher button:checked {
+    background-color: #7aa2f7;
+    color: #ffffff;
+}
+.hedge-sidebar { background-color: #eaecf2; }
+.hedge-sidebar list { background-color: transparent; }
+.hedge-sidebar row { padding: 8px 12px; border-radius: 8px; color: #2a2e3a; }
+.hedge-sidebar row:hover { background-color: #dde0e9; }
+/* The theme paints rows with a background-image, which covers a plain
+   background-color — hence the explicit `none`. Both selectors because the
+   row may be matched via the listbox or directly. */
+.hedge-sidebar list row:selected,
+.hedge-sidebar list row:selected:focus,
+.hedge-sidebar row:selected,
+.hedge-sidebar row:selected:focus {
+    background-color: #7aa2f7;
+    background-image: none;
+    color: #ffffff;
+    font-weight: bold;
+}
+.hedge-section-title {
+    font-weight: bold;
+    color: #5b73c4;
+    letter-spacing: 1px;
+    margin: 12px 4px 4px 4px;
+}
+.hedge-detail { padding: 16px; }
+.hedge-app-row { padding: 6px; border-radius: 8px; }
+.hedge-app-row:hover { background-color: #e7e9ef; }
+/* Scoped to the settings window on purpose. Unscoped, this also matched the
+   hedge window itself, which carries `hedge-dim` while a docked hedge is faded
+   out — so fading a hedge silently restyled its title text too. */
+.hedge-settings .hedge-dim { color: #8a8f9e; }
+
+/* Host monitor, settings table. Only the address column is styled here: the
+   settings table is the editor, and the live badges live on the desklet
+   (painted by clock.rs, scaled to the clock's font and colour). */
+.hedge-settings .ping-host { color: #8a8f9e; }

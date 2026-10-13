@@ -1,0 +1,47 @@
+[package]
+name = "hedge"
+version = "3.0.0"
+edition = "2021"
+description = "A zen, drag-friendly app launcher for the Linux desktop"
+license = "MIT"
+
+[[bin]]
+name = "hedge"
+path = "src/main.rs"
+
+[dependencies]
+# gtk3-rs stack (0.18 is the final GTK3 series — stable, maintenance mode)
+gtk = { version = "0.18", features = ["v3_24"] }
+gdk = "0.18"
+gdk-pixbuf = "0.18"
+gio = "0.18"
+glib = "0.18"
+cairo-rs = "0.18"
+# Same crate gtk already pulls in; named here only to switch on the v1_44 API
+# (cargo unifies features), which is where `insert_hyphens` lives — see the
+# tile label in hedge_window.rs. Pango 1.44 is from 2019.
+pango = { version = "0.18", features = ["v1_44"] }
+
+# system tray via Ayatana AppIndicator (matches the Python AppIndicator path)
+libappindicator = "0.9"
+
+# config (single JSON source of truth, insertion-ordered hedges)
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+indexmap = { version = "2", features = ["serde"] }
+
+# shell-word quoting/splitting for launch commands & dropped files
+# single-instance lock: flock(2), nothing more
+libc = "0.2"
+
+shlex = "1"
+x11rb = { version = "0.14.0", features = ["record"] }
+
+# The desklet's Claude section asks api.anthropic.com for plan usage with the
+# OAuth token Claude Code stores. A real HTTP client rather than shelling out
+# to curl, so the token never appears in a process command line.
+ureq = { version = "3", features = ["json"] }
+
+[profile.release]
+opt-level = 2
+lto = "thin"

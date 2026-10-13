@@ -1,0 +1,22 @@
+<component name="ProjectRunConfigurationManager">
+  <!--
+    Plain release run against your real config. If a Hedge daemon is already
+    running this hands off to it and exits 0 (the app says so on stdout) —
+    quit that one first, or use "Run (release, dev instance)" instead.
+  -->
+  <configuration default="false" name="Run (release)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" nameIsGenerated="false">
+    <option name="command" value="run --release" />
+    <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+    <option name="channel" value="DEFAULT" />
+    <option name="requiredFeatures" value="true" />
+    <option name="allFeatures" value="false" />
+    <option name="emulateTerminal" value="false" />
+    <option name="withSudo" value="false" />
+    <option name="buildTarget" value="REMOTE" />
+    <option name="backtrace" value="SHORT" />
+    <envs />
+    <option name="isRedirectInput" value="false" />
+    <option name="redirectInputPath" value="" />
+    <method v="2" />
+  </configuration>
+</component>

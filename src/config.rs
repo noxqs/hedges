@@ -4,7 +4,7 @@
 //! (`IndexMap`), JSON keys are camelCase, and any unknown keys on a hedge or
 //! app entry round-trip untouched via `#[serde(flatten)]`.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -630,19 +630,47 @@ pub fn config_dir() -> PathBuf {
     base.join("hedge")
 }
 
-/// Carry a config over from before the fence → hedge rename: when
-/// `~/.config/hedge` doesn't exist yet but `~/.config/fence` does, move the
-/// whole directory (config, backups, icons, snapshot) across. Nothing is
-/// touched once `hedge` exists, so this only ever runs once.
+/// Directory names used before the fence → hedge rename, newest first.
+const PRE_RENAME_NAMES: [&str; 2] = ["fences", "fence"];
+
+/// Carry state over from before the fence → hedge rename: the config directory
+/// (config, backups, icons, snapshot) and the desktop stash, so icons that were
+/// hidden under the old name can still be shown again. Each move only happens
+/// while the new location doesn't exist, so this only ever runs once.
 pub fn migrate_from_fence() {
     let dir = config_dir();
-    let old = dir.with_file_name("fence");
-    if dir.exists() || !old.join("config.json").is_file() {
+    if let Some(old) = PRE_RENAME_NAMES
+        .iter()
+        .map(|n| dir.with_file_name(n))
+        .find(|old| old.join("config.json").is_file())
+    {
+        move_once(&old, &dir);
+    }
+
+    let stash = crate::desktop::stash_dir();
+    let Some(data_dir) = stash.parent() else {
+        return;
+    };
+    if let Some(old) = PRE_RENAME_NAMES
+        .iter()
+        .map(|n| data_dir.with_file_name(n).join("desktop-stash"))
+        .find(|old| old.is_dir())
+    {
+        move_once(&old, &stash);
+    }
+}
+
+/// Rename `old` to `new` unless `new` already exists.
+fn move_once(old: &Path, new: &Path) {
+    if new.exists() {
         return;
     }
-    match std::fs::rename(&old, &dir) {
-        Ok(()) => crate::log!("moved config {} -> {}", old.display(), dir.display()),
-        Err(e) => crate::log!(WARN, "could not move config {}: {e}", old.display()),
+    if let Some(parent) = new.parent() {
+        let _ = std::fs::create_dir_all(parent);
+    }
+    match std::fs::rename(old, new) {
+        Ok(()) => crate::log!("moved {} -> {}", old.display(), new.display()),
+        Err(e) => crate::log!(WARN, "could not move {}: {e}", old.display()),
     }
 }
 
@@ -877,6 +905,24 @@ mod tests {
         assert_eq!(hedge_names(&cfg), vec!["Work"]);
         let json = serde_json::to_string(&cfg).unwrap();
         assert!(json.contains("\"hedges\"") && !json.contains("\"fences\""));
+    }
+
+    /// A pre-rename directory moves across once, and never over a newer one.
+    #[test]
+    fn move_once_never_overwrites() {
+        let root = std::env::temp_dir().join(format!("hedge-move-once-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let (old, new) = (root.join("fences/desktop-stash"), root.join("hedge/desktop-stash"));
+        std::fs::create_dir_all(&old).unwrap();
+        std::fs::write(old.join("a.desktop"), "").unwrap();
+
+        move_once(&old, &new);
+        assert!(new.join("a.desktop").is_file() && !old.exists());
+
+        std::fs::create_dir_all(&old).unwrap();
+        move_once(&old, &new);
+        assert!(old.is_dir(), "an existing destination must be left alone");
+        let _ = std::fs::remove_dir_all(&root);
     }
 
     /// The desklet's one chevron became two icons. Whatever the chevron was
